@@ -14,7 +14,6 @@ exports.getStoryById = (storyId) => {
 
 function fetch(path) {
     const URL = `${BASE_API}/${path}`;
-    console.log(URL);
     return new Promise((resolve, reject) => {
         request(URL, { json: true }, (err, resp, body) => {
             if (err !== null)

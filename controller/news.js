@@ -2,16 +2,23 @@
 
 const hackernews = require('../service/hackernews');
 
+const BATCH_SIZE = 50;
+
 exports.search = async (req, res, next) => {
     try {
         const topStoryIds = await hackernews.getTopStoryIds();
-        const batchSize = 10;
         let batches = [];
-        for (let i = 0; i < topStoryIds.length; i += batchSize) {
-            batches.push(topStoryIds.slice(i, i + batchSize));
+        for (let i = 0; i < topStoryIds.length; i += BATCH_SIZE) {
+            batches.push(topStoryIds.slice(i, i + BATCH_SIZE));
         }
         const stories = await executeBatches(batches);
-        res.send(stories);
+        const searchKeyword = req.query.query !== undefined ? req.query.query.toLowerCase() : '';
+        const validStories = stories
+            .filter(story => story.title.toLowerCase().includes(searchKeyword))
+            .map(createShortStory);
+        console.log('TOTAL STORIES', stories.length);
+        console.log('VALID STORIES', validStories.length);
+        res.send(validStories);
     } catch (err) {
         console.error(err);
         res.status(500).send(err);
@@ -23,10 +30,20 @@ async function executeBatches(batches, index = 0, result = []) {
         return result;
     const jobs = createJobs(batches[index])
     const jobsResult = await Promise.all(jobs);
-    console.log('Stories Fetched', (index + 1) * 10);
+    console.log('Stories Fetched', (index + 1) * BATCH_SIZE);
     return executeBatches(batches, index + 1, result.concat(jobsResult));
 }
 
 function createJobs(batch) {
     return batch.map(storyId => hackernews.getStoryById(storyId));
+}
+
+function createShortStory(story) {
+    return {
+        title: story.title,
+        time: story.time,
+        type: story.type,
+        score: story.score,
+        url: story.url
+    }
 }
