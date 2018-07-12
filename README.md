@@ -6,6 +6,8 @@ Request
 
     GET /searchnews?query={something}
 
+`query` param is optional.
+
 Response 
 
     [
@@ -34,5 +36,7 @@ Response
 
 ## Running
 `npm install` - Install all dependencies
+
 `npm start` - Starts the Express.js server
+
 `npm test` - Runs all the tests using Jest library
