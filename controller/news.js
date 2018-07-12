@@ -1,6 +1,7 @@
 'use strict';
 
-const hackernews = require('../service/hackernews');
+const hackernews = require('../service/hackernews'),
+    debug = require('debug')('hackernews');
 
 const BATCH_SIZE = 50;
 
@@ -16,8 +17,8 @@ exports.search = async (req, res, next) => {
         const validStories = stories
             .filter(story => story.title.toLowerCase().includes(searchKeyword))
             .map(createShortStory);
-        console.log('TOTAL STORIES', stories.length);
-        console.log('VALID STORIES', validStories.length);
+        debug('TOTAL STORIES', stories.length);
+        debug('VALID STORIES', validStories.length);
         res.send(validStories);
     } catch (err) {
         console.error(err);
@@ -30,7 +31,7 @@ async function executeBatches(batches, index = 0, result = []) {
         return result;
     const jobs = createJobs(batches[index])
     const jobsResult = await Promise.all(jobs);
-    console.log('Stories Fetched', (index + 1) * BATCH_SIZE);
+    debug('Stories Fetched', (index + 1) * BATCH_SIZE);
     return executeBatches(batches, index + 1, result.concat(jobsResult));
 }
 

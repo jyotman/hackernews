@@ -3,6 +3,7 @@
 const express = require('express'),
     bodyParser = require('body-parser'),
     morgan = require('morgan'),
+    debug = require('debug')('hackernews'),
     news = require('./route/news');
 
 const app = express();
@@ -16,4 +17,6 @@ app.get('/', (req, res, next) => {
 
 app.use('/searchnews', news);
 
-app.listen(process.env.PORT || 3000, () => console.log('Structo app listening on port 3000!'));
+exports.server = app.listen(process.env.PORT || 3000, () => debug('Structo app listening on port 3000!'));
+
+exports.app = app;
